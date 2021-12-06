@@ -12,56 +12,56 @@ import { NbToastrService } from '@nebular/theme';
 })
 export class RowFormComponent implements OnInit {
 
-  @Input() view:IView;
+  @Input() view: IView;
   @Input() dataObserve: Subject<any>;
   @Input() ref: {
     save: Function
   };
 
   form = new FormGroup({});
-  model = { };
+  model = {};
 
   fields: FormlyFieldConfig[] = [];
   dateColNames: string[] = [];
 
   constructor(
-    private tosatService:NbToastrService
+    private tosatService: NbToastrService
   ) {
   }
 
   ngOnInit() {
-    this.view.columns.forEach((col:IViewColumn) => {
+    this.view.columns.forEach((col: IViewColumn) => {
       console.log("type", col);
       // string
-      if (["char", "varchar", "bpchar", "nvarchar"].includes(String(col.type))) {
-        if (col.length && col.length > 50)  {
+      if (["char", "varchar", "bpchar", "nvarchar"].includes(String(col.type.toLowerCase()))) {
+        if (col.length && col.length > 50) {
           this.fields.push(this.generateTextArea(col));
         } else {
           this.fields.push(this.generateInput(col));
         }
       }
       // number 
-      if (["int", "smallint", "tinyint", "mediumint", "int4", "int8", "int2", "integer"].includes(String(col.type))) {
+      if (["int", "smallint", "tinyint", "mediumint", "int4", "int8", "int2", "integer"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateInputNumeric(col));
       }
       // decimal 
-      if (["decimal", "float", "double", "numeric", "float2", "float4", "float8"].includes(String(col.type))) {
+      if (["decimal", "float", "double", "numeric", "float2", "float4", "float8"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateInputDecimal(col));
       }
       // decimal 
-      if (["boolean", "bool"].includes(String(col.type))) {
+      if (["boolean", "bool"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateCheckbox(col));
       }
       // text 
-      if (["text", "tinytext", "mediumtext", "longtext"].includes(String(col.type))) {
+      if (["text", "tinytext", "mediumtext", "longtext"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateTextArea(col));
       }
       //blob
-      if (["blob", "mediumblob", "tinyblob", "longblob"].includes(String(col.type))) {
+      if (["blob", "mediumblob", "tinyblob", "longblob"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateFilepicker(col));
       }
       // date
-      if (["datetime", "timestamp", "date"].includes(String(col.type))) {
+      if (["datetime", "timestamp", "date"].includes(String(col.type.toLowerCase()))) {
         this.fields.push(this.generateDatepicker(col));
         this.model[col.name] = null;
         this.dateColNames.push(col.name);
@@ -81,7 +81,7 @@ export class RowFormComponent implements OnInit {
         .reduce((obj, item) => {
           obj[item] = row[item];
           if (this.dateColNames.includes(item)) {
-            obj[item] =  new Date(obj[item]);
+            obj[item] = new Date(obj[item]);
           }
           return obj;
         }, {})
@@ -89,7 +89,7 @@ export class RowFormComponent implements OnInit {
     })
   }
 
-  generateBasic(col:IViewColumn): FormlyFieldConfig {
+  generateBasic(col: IViewColumn): FormlyFieldConfig {
     return {
       key: col.name,
       templateOptions: {
@@ -154,7 +154,7 @@ export class RowFormComponent implements OnInit {
     this.dateColNames.forEach(col => {
       model[col] = new Date(model[col]).toJSON().slice(0, 19).replace('T', ' ')
     })
-    
+
     this.ref.save(model);
   }
 
