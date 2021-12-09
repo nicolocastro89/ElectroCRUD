@@ -130,7 +130,7 @@ export interface IViewColumn {
     /**
      * Column referance (join)
      */
-    ref?: IViewColumnReferance;
+    ref?: IViewColumnReferance[];
     /**
      * Here we store info data while display in view configure
      */

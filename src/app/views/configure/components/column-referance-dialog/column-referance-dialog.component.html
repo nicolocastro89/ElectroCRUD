@@ -17,8 +17,8 @@
       </div>
       <!-- Use Column -->
       <div class="form-group">
-        <label class="label" for="name">Use column as `{{viewColumn?.name}}` value</label>
-        <nb-select placeholder="Column" id="name" fullWidth formControlName="nameCtrl">
+        <label class="label" for="name">Use column(s) as `{{viewColumn?.name}}` value</label>
+        <nb-select placeholder="Column" id="name" fullWidth formControlName="nameCtrl" multiple>
           <nb-option *ngFor="let col of columns" [value]="col.name">{{col.name}}</nb-option>
         </nb-select>
       </div>
