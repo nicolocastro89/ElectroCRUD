@@ -44,11 +44,11 @@ export interface IView {
     /**
      * Array of view widgets
      */
-    widgets?:IWidget[];
+    widgets?: IWidget[];
     /**
      * Array of view filters
      */
-    filters?:IViewFilter[];
+    filters?: IViewFilter[];
     /**
      * Reference to Subview
      */
@@ -96,6 +96,10 @@ export interface IViewColumn {
      */
     enabled?: boolean;
     /**
+     * Is column visible
+     */
+    visible?: boolean;
+    /**
      * Is the column searchable
      */
     searchable?: boolean;
@@ -103,6 +107,10 @@ export interface IViewColumn {
      * The column name
      */
     name: string;
+    /**
+     * Alias to give to the column
+     */
+    alias?: string
     /**
      * The column type
      */
