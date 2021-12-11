@@ -271,7 +271,10 @@ export class ViewViewComponent implements OnInit, OnDestroy {
         this.getViewJoints()
       );
     this.totalElements = data.count;
-    let columns = data.data.length > 0 ? Object.keys([...data.data].shift()).map(val => ({ name: val, prop: val })) : [];
+    let columns = data.data.length > 0 ? this.view.columns
+      .filter(col => col.visible)
+      .map(col => ({ name: col.alias || col.name, prop: col.name })) :
+      [];
     console.log("columns", columns)
     let subviewActionColumn = this.view.subview && this.view.subview.enabled ? [{ cellTemplate: this.subviewTableIconTmpl, frozenLeft: true, maxWidth: 50, resizeable: false, sortable: false }] : [];
     this.columns = [

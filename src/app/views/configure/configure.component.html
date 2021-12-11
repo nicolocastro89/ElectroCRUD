@@ -35,11 +35,23 @@
               {{row.name}}
             </ng-template>
           </ngx-datatable-column>
+          <ngx-datatable-column name="Alias">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              <input nb-input [(ngModel)]="row.alias" />
+            </ng-template>
+          </ngx-datatable-column>
           <ngx-datatable-column name="Enabled" [sortable]="false" [canAutoResize]="false" [width]="120"
             [draggable]="false" [resizeable]="false">
             <ng-template ngx-datatable-cell-template let-value="value" let-row="row"
               let-onCheckboxChangeFn="onCheckboxChangeFn">
               <nb-checkbox [checked]=value (checkedChange)="row.enabled=$event"></nb-checkbox>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column name="Visible" [sortable]="false" [canAutoResize]="false" [width]="120"
+            [draggable]="false" [resizeable]="false">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row"
+              let-onCheckboxChangeFn="onCheckboxChangeFn">
+              <nb-checkbox [checked]=value (checkedChange)="row.visible=$event"></nb-checkbox>
             </ng-template>
           </ngx-datatable-column>
           <ngx-datatable-column name="Searchable" [sortable]="false" [canAutoResize]="false" [width]="120"

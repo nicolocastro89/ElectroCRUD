@@ -192,6 +192,7 @@ export class ConfigureComponent implements OnInit {
         ...col,
         searchable: true,
         enabled: true,
+        visible: true,
         info: this.getTagsForRow({
           ...col,
           ...localCol[0] || {}
@@ -330,22 +331,18 @@ export class ConfigureComponent implements OnInit {
         console.log("res", res);
         if (res) {
           row.ref = res;
-          let newRows: IViewColumn[] = row.ref.map(r => {
-            let tempRow = {
-              name: `${r.table}.${r.name}`,
-              type: `referance`,
-              length: 0,
-              extra: `${r.table}`,
-              enabled: true,
-              visible: true,
-              searchable: true,
-              nullable: false
-            } as IViewColumn;
-            tempRow.info = this.getTagsForRow(tempRow);
-            return tempRow
-          });
-          newRows = newRows.filter(nr => !this.rows.some(r => r.name == nr.name))
-          this.rows = this.rows.concat(newRows);
+          let newRow: IViewColumn = {
+            name: `${res.table}.${res.name}`,
+            type: `referance`,
+            length: 0,
+            extra: `${res.table}`,
+            enabled: true,
+            visible: true,
+            searchable: true,
+            nullable: false
+          };
+          newRow.info = this.getTagsForRow(newRow);
+          this.rows.push(newRow);
           this.rows = [...this.rows];
         }
       });
@@ -353,9 +350,8 @@ export class ConfigureComponent implements OnInit {
 
   deleteReferance(event, row: IViewColumn) {
     event.stopImmediatePropagation();
-    if (row.ref && row.ref.length > 0 && row.ref[0].table) { //&& row.ref.name
-      this.rows = this.rows.filter(col => !row.ref.map(r => `${r.table}.${r.name}`).includes(col.name))
-      //col.name != `${row.ref.table}.${row.ref.name}`)
+    if (row.ref && row.ref.table && row.ref.name) {
+      this.rows = this.rows.filter(col => col.name != `${row.ref.table}.${row.ref.name}`)
     }
     row.ref = null;
   }

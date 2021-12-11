@@ -1,17 +1,18 @@
 import "reflect-metadata";
 import { fluentProvide } from "inversify-binding-decorators";
 
-import * as Knex from'knex';
+import * as Knex from 'knex';
 import { ConsoleLogService } from "./console-log.service";
 import { ConsoleLogItemType } from "../../shared/interfaces/log-console.interface";
 import getCurrentLine from "get-current-line";
 import sqlFormatter from '@sqltools/formatter';
+import { Config } from "@sqltools/formatter/lib/core/types";
 
 const formatterParams = {
     reservedWordCase: 'upper',
     indent: '    ',
     language: 'sql'
-}
+} as Config
 
 export enum ServerType {
     MySQL = "mysql",
@@ -115,7 +116,7 @@ left join (
 @fluentProvide(DatabaseService).inSingletonScope().done()
 export class DatabaseService {
     private static instance: DatabaseService;
-    private _connection:Knex;
+    private _connection: Knex;
 
     /*public static getInstance() {
         if (!DatabaseService.instance) {
@@ -138,7 +139,7 @@ export class DatabaseService {
     ): Promise<boolean | Error> {
         await this.disconnect();
 
-        let config:Knex.Config = {
+        let config: Knex.Config = {
             client: client,
             connection: {
                 host: host,
@@ -152,7 +153,7 @@ export class DatabaseService {
         try {
             this._connection = Knex(config);
             this.consoleLogService.addItem(ConsoleLogItemType.success, `Connection Success`, getCurrentLine().method)
-        } catch(error) {
+        } catch (error) {
             this.consoleLogService.addItem(ConsoleLogItemType.error, error.message, getCurrentLine().method)
             return error;
         }
@@ -164,17 +165,17 @@ export class DatabaseService {
     ): Promise<boolean | Error> {
         await this.disconnect();
 
-        let config:Knex.Config = {
+        let config: Knex.Config = {
             client: 'sqlite3',
             connection: {
-              filename: filename
+                filename: filename
             }
         };
         this.consoleLogService.addItem(ConsoleLogItemType.info, `Connecting: ${JSON.stringify(config.connection)}`, getCurrentLine().method)
         try {
             this._connection = Knex(config);
             this.consoleLogService.addItem(ConsoleLogItemType.success, `Connection Success`, getCurrentLine().method)
-        } catch(error) {
+        } catch (error) {
             this.consoleLogService.addItem(ConsoleLogItemType.error, error.message, getCurrentLine().method)
             return error;
         }
@@ -184,10 +185,10 @@ export class DatabaseService {
     public async disconnect() {
         if (this.connection) {
             await this.connection.destroy();
-        } 
+        }
     }
 
-    public get connection():Knex {
+    public get connection(): Knex {
         return this._connection;
     }
 
@@ -195,14 +196,14 @@ export class DatabaseService {
         try {
             console.log("activeClient:", this.connection.client.config.client);
             return this.connection.client.config.client;
-        } catch(error) {
+        } catch (error) {
             console.log("activeClient: ", error);
             return null;
         }
         return null;
     }
 
-    public async heartbeat():Promise<boolean | Error> {
+    public async heartbeat(): Promise<boolean | Error> {
         if (!this.connection || !this.activeClient) {
             console.log("no connection or active client");
             return null
@@ -213,7 +214,7 @@ export class DatabaseService {
         try {
             let res = await this.connection.raw(heartbeatQuery);
             return true;
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
@@ -234,7 +235,7 @@ export class DatabaseService {
                 return findResultSQLite(res);
             }
             return findResult(res);
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
@@ -242,7 +243,7 @@ export class DatabaseService {
     public async listTables(): Promise<string[] | Error> {
         let listTablesQuery = ListTablesQueries[this.activeClient];
         console.log("listTablesQuery", listTablesQuery)
-        let bindings: string[] = [ this.connection.client.database() ];
+        let bindings: string[] = [this.connection.client.database()];
         if (this.activeClient == "sqlite3") {
             bindings = [];
         }
@@ -259,24 +260,24 @@ export class DatabaseService {
             if (this.activeClient == "sqlite3") {
                 return (res as any).map(row => row.table_name);
             }
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
 
     public async tableInfo(tableName: string) {
         let tableInfoQuery = GetPrimaryKeyQueries[this.activeClient];
-        let bindings: string[] = [ tableName ];
+        let bindings: string[] = [tableName];
         if (this.activeClient == "mysql") {
-            bindings = [ this.connection.client.database(), tableName ];
+            bindings = [this.connection.client.database(), tableName];
         }
         if (this.activeClient == "pg") {
-            bindings = [ this.connection.client.database(), tableName, tableName, tableName ];
+            bindings = [this.connection.client.database(), tableName, tableName, tableName];
         }
         let findResult = ((result: any) => result[0]) as ((result: any) => string | undefined);
         let findResultPG = ((result: any) => result.rows) as ((result: any) => string | undefined);
         //let findResultSQLite = ((result: any) => result) as ((result: any) => string | undefined);
-    
+
         try {
             this.consoleLogService.addItem(ConsoleLogItemType.info, sqlFormatter.format(tableInfoQuery, formatterParams), getCurrentLine().method)
             let res = await this.connection.raw(tableInfoQuery, bindings);
@@ -288,21 +289,21 @@ export class DatabaseService {
                 return findResultPG(res);
             }
             return findResult(res);
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
 
     public async readData(
-        table: string, 
-        columns: string[], 
-        limit: number, 
-        offset:number, 
-        searchColumns?: string[], 
+        table: string,
+        columns: string[],
+        limit: number,
+        offset: number,
+        searchColumns?: string[],
         searchText?: string,
-        where?: { 
-            column: string, 
-            opr: string, 
+        where?: {
+            column: string,
+            opr: string,
             value: string,
             or: boolean
         }[],
@@ -333,8 +334,8 @@ export class DatabaseService {
                         if (!sCol.includes(".")) {
                             sCol = `${table}.${sCol}`;
                         }
-                        if (idx ==0)    {
-                            wq  = wq.where(sCol, 'like', `%${searchText}%`);
+                        if (idx == 0) {
+                            wq = wq.where(sCol, 'like', `%${searchText}%`);
                         } else {
                             wq = wq.orWhere(sCol, 'like', `%${searchText}%`);
                         }
@@ -343,7 +344,7 @@ export class DatabaseService {
                 })
             }
             if (where) {
-                where.forEach((col, idx:number) => {
+                where.forEach((col, idx: number) => {
                     let wCol = col.column;
                     if (!wCol.includes(".")) {
                         wCol = `${table}.${wCol}`;
@@ -358,7 +359,7 @@ export class DatabaseService {
                     }
                 })
             }
-            let countRes = await q.clone().clearSelect().count({count: '*'})
+            let countRes = await q.clone().clearSelect().count({ count: '*' })
             console.log("countRes: ", countRes);
 
             this.consoleLogService.addItem(ConsoleLogItemType.info, sqlFormatter.format(q.toQuery(), formatterParams), getCurrentLine().method)
@@ -370,19 +371,19 @@ export class DatabaseService {
                 data: res,
                 count: countRes[0]['count']
             };
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
-    
+
     public async updateData(
-        table: string, 
+        table: string,
         update: {
-            [key:string]: any
-        }, 
-        where?: { 
-            column: string, 
-            opr: string, 
+            [key: string]: any
+        },
+        where?: {
+            column: string,
+            opr: string,
             value: string,
             or: boolean
         }[]
@@ -390,7 +391,7 @@ export class DatabaseService {
         try {
             let q = this.connection
                 .table(table);
-            
+
             where.forEach((col, idx: number) => {
                 if (idx == 0) {
                     q = q.where(col.column, col.opr, col.value);
@@ -406,15 +407,15 @@ export class DatabaseService {
 
             console.log(res);
             return true;
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
 
     public async insertData(
-        table: string, 
+        table: string,
         data: {
-            [key:string]: any
+            [key: string]: any
         }
     ): Promise<boolean | Error> {
         try {
@@ -427,16 +428,16 @@ export class DatabaseService {
 
             console.log(res);
             return true;
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
 
     public async deleteData(
-        table: string, 
-        where?: { 
-            column: string, 
-            opr: string, 
+        table: string,
+        where?: {
+            column: string,
+            opr: string,
             value: string,
             or: boolean
         }[]
@@ -444,7 +445,7 @@ export class DatabaseService {
         try {
             let q = this.connection
                 .table(table);
-            
+
             where.forEach((col, idx: number) => {
                 if (idx == 0) {
                     q = q.where(col.column, col.opr, col.value);
@@ -458,19 +459,19 @@ export class DatabaseService {
             let res = await q.delete();
             console.log(res);
             return true;
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
 
     public async readWidgetData(
-        table: string, 
-        column: string, 
-        distinct: boolean, 
-        func: string, 
-        where?: { 
-            column: string, 
-            opr: string, 
+        table: string,
+        column: string,
+        distinct: boolean,
+        func: string,
+        where?: {
+            column: string,
+            opr: string,
             value: string,
             or: boolean
         }[]
@@ -487,7 +488,7 @@ export class DatabaseService {
             }).from(table);
 
             if (where) {
-                where.forEach((col, idx:number) => {
+                where.forEach((col, idx: number) => {
                     if (idx == 0) {
                         q = q.where(col.column, col.opr, col.value);
                     } else {
@@ -504,7 +505,7 @@ export class DatabaseService {
             return {
                 data: res[0]['a']
             };
-        } catch(error) {
+        } catch (error) {
             return error;
         }
     }
