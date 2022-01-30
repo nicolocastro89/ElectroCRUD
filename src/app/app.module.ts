@@ -24,10 +24,10 @@ import { HomeComponent } from './components/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NbThemeModule, NbDatepickerModule, NbDatepickerDirective, NbInputModule, NbSelectModule, NbCheckboxModule, NbAlertModule, NbListModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-import { 
+import {
   NbSidebarModule,
-  NbLayoutModule, 
-  NbButtonModule, 
+  NbLayoutModule,
+  NbButtonModule,
   NbActionsModule,
   NbSearchModule,
   NbMenuService,
@@ -61,6 +61,8 @@ import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 import { SessionService } from './services/session.service';
 import { LogConsoleComponent } from './components/log-console/log-console.component';
 
+import { QueryBuilderModule } from 'angular2-query-builder';
+
 
 // configure Bugsnag ASAP, before any other imports
 const bugsnagClient = Bugsnag.start({
@@ -81,7 +83,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 }
 
 
-console.log("version: ", version ,", env: ", AppConfig.environment);
+console.log("version: ", version, ", env: ", AppConfig.environment);
 
 @NgModule({
   declarations: [
@@ -92,7 +94,7 @@ console.log("version: ", version ,", env: ", AppConfig.environment);
     AddEditWidgetModalComponent,
     AddEditFilterModalComponent,
     ColumnReferanceDialogComponent,
-    LogConsoleComponent
+    LogConsoleComponent,
   ],
   exports: [
     ConfirmDeleteComponent,
@@ -136,16 +138,17 @@ console.log("version: ", version ,", env: ", AppConfig.environment);
     NgBootstrapFormValidationModule.forRoot(),
     MonacoEditorModule,
     NbListModule,
-    NbBadgeModule
+    NbBadgeModule,
+    QueryBuilderModule
   ],
   providers: [
-    ElectronService, 
-    NbMenuService, 
-    NbDialogService, 
-    AccountsService, 
+    ElectronService,
+    NbMenuService,
+    NbDialogService,
+    AccountsService,
     NbDatepickerDirective,
     {
-      provide: ErrorHandler, 
+      provide: ErrorHandler,
       useFactory: errorHandlerFactory
     },
     SessionService,

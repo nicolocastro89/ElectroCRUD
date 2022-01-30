@@ -12,7 +12,9 @@
     "experimentalDecorators": true,
     "strict": false,
     "noImplicitUseStrict": true,
-    "types": ["reflect-metadata"],
+    "types": [
+      "reflect-metadata"
+    ],
     "target": "esnext",
     "module": "commonjs",
     "types": [
