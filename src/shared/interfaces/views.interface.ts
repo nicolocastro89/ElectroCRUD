@@ -26,6 +26,10 @@ export interface IView {
      */
     columns?: IViewColumn[];
     /**
+     * Joins with other tables
+     */
+    joins?: IJoinTables[];
+    /**
      * The table terminology, how we call the records in singular and plural.
      */
     terms?: IViewTerms;
@@ -197,4 +201,35 @@ export interface IViewColumnReferance {
      * The column to match against the IViewColumn
      */
     match_column?: string;
+    /**
+     * The comparison operator to use for the match
+     */
+    comperison_operator?: string;
+}
+
+/**
+ * Interface represent a view column referance
+ */
+export interface IJoinTables {
+    /**
+     * The table name
+     */
+    table?: string;
+    /**
+     * The table alias
+     */
+    alias?: string;
+    /**
+     * Join conditions
+     */
+    rules?: {};
+    /**
+     * The column name to use
+     */
+    name?: string;
+    /**
+     * Columns to select
+     */
+    columns?: IViewColumn[]
+
 }
