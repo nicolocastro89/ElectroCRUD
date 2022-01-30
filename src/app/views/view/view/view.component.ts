@@ -11,7 +11,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { ConfirmDeleteComponent } from '../../../components/dialogs/confirm-delete/confirm-delete.component';
 import {
   IPCDeleteData,
-  IPCReadData
+  IPCReadData,
 } from '../../../../shared/ipc/views.ipc';
 
 import { BreadcrumbsService } from '../../../services/breadcrumbs.service';
@@ -233,19 +233,37 @@ export class ViewViewComponent implements OnInit, OnDestroy {
   }
 
   private getViewJoints(): IPCReadData.IIPCReadDataJoin[] {
-    return this.view
-      .columns
-      .filter(col => col.ref)
-      .map(col => (
-        {
-          table: col.ref.table,
-          on: {
-            local: col.name,
-            target: col.ref.match_column,
-            opr: IPCReadData.IIPCReadDataWhereOpr.EQ
-          }
-        } as IPCReadData.IIPCReadDataJoin
-      ));
+    let joins = []
+    // this.view
+    //   .columns
+    //   .filter(col => col.ref && col.ref.length > 0)
+    //   .flatMap(col =>
+    //     col.ref.map(r => (
+    //       {
+    //         table: r.table,
+    //         on: {
+    //           condition: 'and',
+    //           rules: [
+    //             {
+    //               field: col.name,
+    //               value: r.match_column,
+    //               operator: IPCReadData.IIPCReadDataWhereOpr.EQ
+    //             } as IPCReadData.IIPCRule
+    //           ]
+    //         } as IPCReadData.IIPCRuleSet,
+    //         columns: [r.name]
+    //       } as IPCReadData.IIPCReadDataJoin
+    //     )));
+
+    joins.push(...this.view.joins.map(j => ({
+      table: j.table,
+      alias: j.alias,
+      on: j.rules as IPCReadData.IIPCRuleSet,
+      columns: j.columns.map(c => c.name)
+    } as IPCReadData.IIPCReadDataJoin)
+    ));
+    joins = [... new Set(joins.map(j => JSON.stringify(j)))].map(j => JSON.parse(j) as IPCReadData.IIPCReadDataJoin);
+    return joins
   }
 
   checkValidBase64(str: string) {
@@ -275,6 +293,9 @@ export class ViewViewComponent implements OnInit, OnDestroy {
       .filter(col => col.visible)
       .map(col => ({ name: col.alias || col.name, prop: col.name })) :
       [];
+    columns.push(...this.view.joins.flatMap(j => {
+      return j.columns.map(col => ({ name: col.alias || col.name, prop: col.name }));
+    }));
     console.log("columns", columns)
     let subviewActionColumn = this.view.subview && this.view.subview.enabled ? [{ cellTemplate: this.subviewTableIconTmpl, frozenLeft: true, maxWidth: 50, resizeable: false, sortable: false }] : [];
     this.columns = [

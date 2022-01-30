@@ -99,7 +99,7 @@ export class ColumnReferanceDialogComponent implements OnInit {
 
     await new Promise(r => setTimeout(r, 500));
     this.formGroup.controls.matchColumnCtrl.setValue(this.viewColumn.ref[0].match_column);
-    this.formGroup.controls.nameCtrl.setValue(this.viewColumn.ref[0].name);
+    this.formGroup.controls.nameCtrl.setValue(this.viewColumn.ref.map(r => r.name));
   }
 
   save() {
