@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SessionService } from '../../services/session.service';
-import { IView, IViewColumn } from '../../../shared/interfaces/views.interface';
+import { IJoinTables, IView, IViewColumn } from '../../../shared/interfaces/views.interface';
 import { ViewsService } from '../../services/store/views.service';
 import {
   NbSpinnerService, NbToastrService, NbDialogService, NbIconLibraries
@@ -15,6 +15,7 @@ import { deepEqual } from 'fast-equals';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DefinitionMap } from '@angular/compiler/src/render3/view/util';
+import { JoinTablesDialogComponent } from './components/join-tables-dialog/join-tables-dialog.component';
 
 @Component({
   selector: 'app-configure',
@@ -40,7 +41,7 @@ export class ConfigureComponent implements OnInit {
 
   rows = [];
   temp = [];
-
+  joinRows = [];
   viewHeaderForm: FormGroup;
   termForm: FormGroup;
   subviewForm: FormGroup;
@@ -177,7 +178,7 @@ export class ConfigureComponent implements OnInit {
     console.log(newTable)
     let isSameTable = (this.view.table == String(newTable));
     this.view.table = String(newTable);
-    let resColumns: IPCTableInfo.IResponse = await this.viewsIPCService.tableInfo(String(newTable));
+
 
     if (!isSameTable) {
       this.view.terms = {
@@ -185,6 +186,10 @@ export class ConfigureComponent implements OnInit {
         many: `${newTable}s`
       };
     }
+
+    //getRowsFromView();
+
+    /*let resColumns: IPCTableInfo.IResponse = await this.viewsIPCService.tableInfo(String(newTable));
 
     let columnsFromDB = resColumns.columns.map((col: IPCTableInfo.TableInfoColumn) => {
       let localCol = this.view.columns.filter(fCol => fCol.name == col.name);
@@ -207,9 +212,15 @@ export class ConfigureComponent implements OnInit {
       .forEach((col: IViewColumn) => {
         columnsFromDB.push(col);
       })
-
+      */
+    let columnsFromDB = await this.getRowsFromView();
     this.view.columns = [...columnsFromDB];
-
+    if (this.view.joins && this.view.joins.length > 0) {
+      this.view.joins.forEach(async j => {
+        columnsFromDB = await this.getRowsFromJoin(j)
+        j.columns = [...columnsFromDB]
+      })
+    }
     this.rows = this.view.columns;
     this.termForm.controls.termOneCtrl.setValue(this.view.terms.one);
     this.termForm.controls.termManyCtrl.setValue(this.view.terms.many);
@@ -331,27 +342,86 @@ export class ConfigureComponent implements OnInit {
         console.log("res", res);
         if (res) {
           row.ref = res;
-          let newRow: IViewColumn = {
-            name: `${res.table}.${res.name}`,
-            type: `referance`,
-            length: 0,
-            extra: `${res.table}`,
-            enabled: true,
-            visible: true,
-            searchable: true,
-            nullable: false
-          };
-          newRow.info = this.getTagsForRow(newRow);
-          this.rows.push(newRow);
-          this.rows = [...this.rows];
+          let newRows: IViewColumn[] = row.ref.map(r => {
+            let tempRow = {
+              name: `${r.table}.${r.name}`,
+              type: `referance`,
+              length: 0,
+              extra: `${r.table}`,
+              enabled: true,
+              visible: true,
+              searchable: true,
+              nullable: false
+            } as IViewColumn;
+            tempRow.info = this.getTagsForRow(tempRow);
+            return tempRow
+          });
+          console.log('Full list of new rows', newRows);
+          newRows = newRows.filter(nr => !this.rows.some(r => r.name == nr.name))
+          console.log('filtred list of new rows', newRows);
+          console.log('oldrows', this.rows);
+          this.rows = this.rows.concat(newRows);
+          this.view.columns = [...this.rows] as IViewColumn[]
+          // this.rows = [...this.rows];
+          console.log('newRows', this.rows)
+        }
+      });
+  }
+
+  addEditJoin(join?: IJoinTables) {
+    console.log("addEditJoin")
+    this.dialogService
+      .open<any>(JoinTablesDialogComponent, {
+        hasBackdrop: true,
+        context: {
+          view: this.view,
+          join: join
+        }
+      })
+      .onClose
+      .subscribe(async (res: IJoinTables) => {
+        if (res) {
+          if (!this.view.joins) {
+            this.view.joins = [];
+          }
+
+          res.columns = [...(await this.getRowsFromJoin(res))];
+          if (!join) {
+            join = { ...res } as IJoinTables;
+            this.view.joins.push(join);
+          } else {
+            this.view.joins.splice(this.view.joins.indexOf(join), 1, { ...res })
+          }
+
+
+          console.log(this.view)
+          // let newRows: IViewColumn[] = res.columns.map(c => {
+          //   let tempRow = {
+          //     ...c,
+          //     name: `${res.alias}.${c.name}`,
+
+          //     extra: `${res.table} (${res.alias})`,
+
+          //   } as IViewColumn;
+          //   tempRow.info = this.getTagsForRow(tempRow);
+          //   return tempRow
+          // });
+          // console.log('Full list of new rows', newRows);
+          // newRows = newRows.filter(nr => !this.rows.some(r => r.name == nr.name))
+          // console.log('filtred list of new rows', newRows);
+          // console.log('oldrows', this.rows);
+          // this.rows = this.rows.concat(newRows);
+          // this.view.columns = [...this.rows] as IViewColumn[]
+          // // this.rows = [...this.rows];
+          // console.log('newRows', this.rows)
         }
       });
   }
 
   deleteReferance(event, row: IViewColumn) {
     event.stopImmediatePropagation();
-    if (row.ref && row.ref.table && row.ref.name) {
-      this.rows = this.rows.filter(col => col.name != `${row.ref.table}.${row.ref.name}`)
+    if (row.ref && row.ref.length > 0 && row.ref[0].table) {
+      this.rows = this.rows.filter(col => !row.ref.map(r => `${r.table}.${r.name}`).includes(col.name))
     }
     row.ref = null;
   }
@@ -377,4 +447,106 @@ export class ConfigureComponent implements OnInit {
     return tags;
   }
 
+  async getRowsFromView(): Promise<IViewColumn[]> {
+    let resColumns: IPCTableInfo.IResponse = await this.viewsIPCService.tableInfo(String(this.view.table));
+
+    let columnsFromDB = resColumns.columns.map((col: IPCTableInfo.TableInfoColumn) => {
+      let localCol = this.view.columns.filter(fCol => fCol.name == col.name);
+      return {
+        ...col,
+        searchable: true,
+        enabled: true,
+        visible: true,
+        info: this.getTagsForRow({
+          ...col,
+          ...localCol[0] || {}
+        }),
+        ...localCol[0] || {},
+        extra: `${this.view.table}`,
+      } as IViewColumn
+    });
+
+    // refereance columns
+    this.view.columns
+      .filter(fCol => fCol.type == 'referance')
+      .forEach((col: IViewColumn) => {
+        columnsFromDB.push(col);
+      })
+
+    /**if (this.view.joins) {
+      this.view.joins.forEach(async join => {
+        let joinColumns: IPCTableInfo.IResponse = await this.viewsIPCService.tableInfo(String(join.table));
+        joinColumns.columns.map((col: IPCTableInfo.TableInfoColumn) => {
+          let localCol = join.columns.filter(fCol => fCol.name == col.name);
+          columnsFromDB.push({
+            ...col,
+            searchable: true,
+            enabled: true,
+            visible: true,
+            extra: `${join.table} (${join.alias})`,
+            info: this.getTagsForRow({
+              ...col,
+              ...localCol[0] || {}
+            }),
+            ...localCol[0] || {}
+          } as IViewColumn);
+        });
+
+      });
+    }**/
+
+    return columnsFromDB;
+  }
+
+  async getRowsFromJoin(join: IJoinTables): Promise<IViewColumn[]> {
+    return this.viewsIPCService.tableInfo(String(join.table)).then(r => {
+      return r.columns.map((col: IPCTableInfo.TableInfoColumn) => {
+        let localCol = join.columns.filter(fCol => fCol.name == col.name);
+        return {
+          ...col,
+          searchable: true,
+          enabled: true,
+          visible: true,
+          info: this.getTagsForRow({
+            ...col,
+            ...localCol[0] || {}
+          }),
+          ...localCol[0] || {},
+          extra: `${join.table} (${join.alias})`,
+        } as IViewColumn
+      });
+    });
+    // let resColumns: IPCTableInfo.IResponse = await this.viewsIPCService.tableInfo(String(join.table));
+    // console.log(`Got rows:${resColumns}`);
+    // let columnsFromDB = resColumns.columns.map((col: IPCTableInfo.TableInfoColumn) => {
+    //   let localCol = join.columns.filter(fCol => fCol.name == col.name);
+    //   return {
+    //     ...col,
+    //     searchable: true,
+    //     enabled: true,
+    //     visible: true,
+    //     info: this.getTagsForRow({
+    //       ...col,
+    //       ...localCol[0] || {}
+    //     }),
+    //     ...localCol[0] || {},
+    //     extra: `${join.table} (${join.alias})`,
+    //   } as IViewColumn
+    // });
+    // console.log(`Got columns:${columnsFromDB}`);
+    // return columnsFromDB;
+  }
+
+  toggleExpandGroup(group) {
+    console.log('Toggled Expand Group!', group);
+    this.table.groupHeader.toggleExpandGroup(group);
+  }
+
+  onDetailToggle(event) {
+    console.log('Detail Toggled', event);
+  }
+
+  deleteJoin($event, join) {
+    this.view.joins.splice(this.view.joins.indexOf(join), 1);
+  }
 }

@@ -28,6 +28,7 @@
       <nb-card-body>
         <ngx-datatable #table class="bootstrap" [rows]="rows" [columnMode]="'force'" [headerHeight]="30"
           [footerHeight]="30" [rowHeight]="'auto'" [limit]="10">
+
           <ngx-datatable-column name="Name">
             <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
               <nb-icon *ngIf="row.type == 'referance'" icon="merge" pack="whhg" class="column-name-prefix-icon mr-1"
@@ -74,13 +75,92 @@
                 nbTooltipStatus="primary" [status]="row.ref ? 'success' : 'primary'" *ngIf="row.type != 'referance'">
                 <nb-icon icon="folder"></nb-icon>
                 Referance
+
+              </button>
+              <button nbButton hero size="small" class="btn-relerance">
                 <nb-badge *ngIf="row.ref" text="X" status="danger" (click)="deleteReferance($event, row)"
                   nbTooltip="Delete Referance" nbTooltipStatus="danger"></nb-badge>
               </button>
             </ng-template>
           </ngx-datatable-column>
         </ngx-datatable>
+        <!-- JOINS -->
+        <nb-accordion>
+          <nb-accordion-item *ngFor="let join of view.joins">
+            <nb-accordion-item-header>{{join.table}} ({{join.alias}})
+              <button nbButton hero size="small" (click)="addEditJoin(join)" class="btn-join" nbTooltip="Edit Join">
+                <nb-icon icon="folder"></nb-icon>
+                Join
+                <nb-badge text="X" status="danger" (click)="deleteJoin($event, join)" nbTooltip="Delete Join"
+                  nbTooltipStatus="danger"></nb-badge>
+              </button>
+            </nb-accordion-item-header>
+            <nb-accordion-item-body>
+              <ngx-datatable #table class="bootstrap" [rows]="join.columns" [columnMode]="'force'" [headerHeight]="30"
+                [footerHeight]="30" [rowHeight]="'auto'" [limit]="10">
+
+                <ngx-datatable-column name="Name">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                    {{row.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Alias">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                    <input nb-input [(ngModel)]="row.alias" />
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Enabled" [sortable]="false" [canAutoResize]="false" [width]="120"
+                  [draggable]="false" [resizeable]="false">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row"
+                    let-onCheckboxChangeFn="onCheckboxChangeFn">
+                    <nb-checkbox [checked]=value (checkedChange)="row.enabled=$event"></nb-checkbox>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Visible" [sortable]="false" [canAutoResize]="false" [width]="120"
+                  [draggable]="false" [resizeable]="false">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row"
+                    let-onCheckboxChangeFn="onCheckboxChangeFn">
+                    <nb-checkbox [checked]=value (checkedChange)="row.visible=$event"></nb-checkbox>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Searchable" [sortable]="false" [canAutoResize]="false" [width]="120"
+                  [draggable]="false" [resizeable]="false">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row"
+                    let-onCheckboxChangeFn="onCheckboxChangeFn">
+                    <nb-checkbox [checked]=value (checkedChange)="row.searchable=$event"></nb-checkbox>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Default"></ngx-datatable-column>
+                <ngx-datatable-column name="Info" [sortable]="false" [canAutoResize]="true" [draggable]="false"
+                  [resizeable]="false">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                    <tag-input [(ngModel)]="row.info" [hideForm]="true" [removable]="false" [ripple]="false">
+                    </tag-input>
+                  </ng-template>
+                </ngx-datatable-column>
+                <!--ngx-datatable-column name="Actions">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                    <button nbButton hero size="small" (click)="addEditReferance(row)" class="btn-relerance"
+                      nbTooltipStatus="primary" [status]="row.ref ? 'success' : 'primary'"
+                      *ngIf="row.type != 'referance'">
+                      <nb-icon icon="folder"></nb-icon>
+                      Referance
+                      <nb-badge *ngIf="row.ref" text="X" status="danger" (click)="deleteReferance($event, row)"
+                        nbTooltip="Delete Referance" nbTooltipStatus="danger"></nb-badge>
+                    </button>
+                  </ng-template>
+                </ngx-datatable-column-->
+              </ngx-datatable>
+            </nb-accordion-item-body>
+          </nb-accordion-item>
+        </nb-accordion>
       </nb-card-body>
+      <nb-card-footer class="d-flex justify-content-end">
+        <button nbButton hero size="small" (click)="addEditJoin()" class="btn-relerance" nbTooltipStatus="primary">
+          <nb-icon icon="folder"></nb-icon>
+          JOIN
+        </button>
+      </nb-card-footer>
     </nb-card>
 
     <div class="row" *ngIf="view?.table">
@@ -134,6 +214,25 @@
         </nb-card>
       </div>
     </div>
+
+    <!--div class="row" *ngIf="view?.table">
+      <div class="col-md-6">
+        <nb-card>
+          <nb-card-header>Join Tables</nb-card-header>
+          <nb-card-body>
+            <div [formGroup]="subviewForm">
+              <p>Create a JOIN with another table</p>
+              <button nbButton hero size="small" (click)="addEditJoin()" class="btn-relerance"
+                nbTooltipStatus="primary">
+                <nb-icon icon="folder"></nb-icon>
+                JOIN
+              </button>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </div>
+
+    </div-->
 
     <div class="row" *ngIf="view?.table">
       <div class="col-md-6">
