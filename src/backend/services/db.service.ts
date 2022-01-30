@@ -8,6 +8,16 @@ import getCurrentLine from "get-current-line";
 import sqlFormatter from '@sqltools/formatter';
 import { Config } from "@sqltools/formatter/lib/core/types";
 
+import {
+    IPCListOfTables,
+    IPCTableInfo,
+    IPCReadData,
+    IPCUpdateData,
+    IPCInsertData,
+    IPCDeleteData,
+    IPCReadWidgetData
+} from '../../shared/ipc/views.ipc';
+
 const formatterParams = {
     reservedWordCase: 'upper',
     indent: '    ',
@@ -307,27 +317,36 @@ export class DatabaseService {
             value: string,
             or: boolean
         }[],
-        join?: {
-            table: string;
-            on: {
-                local: string,
-                target: string,
-                opr: string
-            }
-        }[]
+        join?: IPCReadData.IIPCReadDataJoin[]
     ): Promise<any | Error> {
         console.log("join", join);
         try {
             let selectColumns = [...columns].map(col => !col.includes(".") ? `${table}.${col}` : `${col} as ${col}`)
 
-            let q = this.connection.select(...selectColumns).from(table);
+            let q = this.connection.from(table);
 
             if (join) {
+                let joinMethod = this.ruleSetToJoin;
                 join.forEach((j) => {
-                    q = q.leftJoin(j.table, `${table}.${j.on.local}`, `${j.table}.${j.on.target}`)
-                })
-            }
+                    let on = {};
+                    let tableAlias = j.table;
+                    let service = this;
+                    if (j.alias) {
+                        tableAlias = j.alias;
+                    }
+                    on[tableAlias] = j.table
 
+                    q = q.leftJoin(on, function () {
+                        let ruleType = 'andOn';
+                        if (j.on.condition == 'or') {
+                            ruleType = 'orOn';
+                        }
+                        joinMethod(this, ruleType, tableAlias, j.on.rules, service)
+                    });//`${table}.${j.on.local}`, `${j.table}.${j.on.target}`)
+                    selectColumns.push(...j.columns.map(c => `${tableAlias}.${c}`));
+                }, this)
+            }
+            q.select(...selectColumns);
             if (searchColumns && searchText) {
                 q = q.whereWrapped((wq) => {
                     searchColumns.forEach((sCol: string, idx: number) => {
@@ -510,4 +529,44 @@ export class DatabaseService {
         }
     }
 
+    public ruleSetToJoin(clause: Knex.JoinClause, joinType: string, onTableName: string, rules: (IPCReadData.IIPCRule | IPCReadData.IIPCRuleSet)[], service: any) {
+
+        let onCondition = 'on';//clause.on;
+        for (let rule of rules) {
+            if ('rules' in rule && rule.rules.length > 1) {
+
+                let newRuleType = 'andOn';
+                if (rule.condition == 'or') {
+                    newRuleType = 'orOn';
+                }
+                let joinMethod = this.ruleSetToJoin;
+                clause[onCondition](function () {
+                    joinMethod(this, newRuleType, onTableName, (<IPCReadData.IIPCRuleSet>rule).rules, service);
+                })
+
+            } else {
+                if ('rules' in rule) {
+                    rule = rule.rules[0];
+                }
+                rule = rule as IPCReadData.IIPCRule;
+                let comparisonValue: any = undefined;
+                if (rule.value.compareAgainst === 'string') {
+                    comparisonValue = service.connection.raw('?', [rule.value.compareValue])
+                } else if (rule.value.compareAgainst === 'column') {
+                    comparisonValue = `${rule.value.compareValue.column.table_name}.${rule.value.compareValue.column.name}`
+                }
+                clause[onCondition](
+                    `${onTableName}.${rule.field}`,
+                    `${rule.operator}`,
+                    comparisonValue
+                )
+            }
+            onCondition = joinType;
+        }
+
+    }
+
+    public addRuleToJoin(clause: Knex.JoinClause, tableName: string, rule: IPCReadData.IIPCRule) {
+
+    }
 }
