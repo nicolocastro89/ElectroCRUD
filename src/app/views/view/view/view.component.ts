@@ -294,7 +294,7 @@ export class ViewViewComponent implements OnInit, OnDestroy {
       .map(col => ({ name: col.alias || col.name, prop: col.name })) :
       [];
     columns.push(...this.view.joins.flatMap(j => {
-      return j.columns.map(col => ({ name: col.alias || col.name, prop: col.name }));
+      return j.columns.filter(col => col.visible).map(col => ({ name: col.alias || col.name, prop: `${j.alias}_${col.name}` }));
     }));
     console.log("columns", columns)
     let subviewActionColumn = this.view.subview && this.view.subview.enabled ? [{ cellTemplate: this.subviewTableIconTmpl, frozenLeft: true, maxWidth: 50, resizeable: false, sortable: false }] : [];
