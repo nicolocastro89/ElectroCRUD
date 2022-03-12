@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NbDialogRef, NbIconLibraries } from '@nebular/theme';
-import { IView } from '../../../../../../../shared/interfaces/views.interface';
+import { IView, IViewColumn } from '../../../../../../../shared/interfaces/views.interface';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import * as UUID from 'uuid';
 import { IViewFilter, ViewFilterWhereOpr, IViewFilterWhere } from '../../../../../../../shared/interfaces/filters.interface';
@@ -20,6 +20,10 @@ export class AddEditFilterModalComponent implements OnInit {
    * The view we manipulating
    */
   public view:IView;
+  /**
+   * The columns available in the view
+   */
+  // public viewColumns: Array<{ name: string, column: IViewColumn, table: string }> = [];
   /**
    * The filter we edit or new instance or filter to add
    */
@@ -180,6 +184,23 @@ export class AddEditFilterModalComponent implements OnInit {
       this.iconsLib.getPack("eva").icons.forEach((icon: any) => this.iconsListArr.push(icon.name));
     }
     return this.iconsListArr;
+  }
+
+  public getViewColumns(): Array<{ name: string, column: IViewColumn, table: string }> {
+    let viewColumns = [...this.view.columns.map(c => ({ name: `${this.view.table}.${c.name}`, column: c, table: this.view.table }))];
+
+    if (this.view.joins) {
+      viewColumns.push(...this.view.joins.flatMap(j => {
+        let prefix = j.table;
+        if (j.alias) {
+          prefix = j.alias;
+        }
+
+        return j.columns.map(c => ({ name: `${prefix}.${c.name}`, column: c, table: j.table }));
+      }));
+    }
+
+    return viewColumns
   }
 
   /**
