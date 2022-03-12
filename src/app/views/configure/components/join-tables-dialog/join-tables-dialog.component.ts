@@ -19,7 +19,8 @@ export class JoinTablesDialogComponent implements OnInit {
   title: string = "Join Tables";
 
   view: IView;
-  viewColumns: Array<{ column: IViewColumn, table: string }> = [];
+  // viewColumns: Array<{ column: IViewColumn, table: string }> = [];
+  viewColumns: Array<{ name: string, column: IViewColumn, table: string }> = [];
 
   isSaveEnabled: boolean = false;
   formGroup: FormGroup;
@@ -71,14 +72,17 @@ export class JoinTablesDialogComponent implements OnInit {
     }
 
 
-    this.viewColumns = [...this.view.columns.map(c => ({ column: c, table: this.view.table }))];
+    // this.viewColumns = [...this.view.columns.map(c => ({ column: c, table: this.view.table }))];
+    this.viewColumns = [...this.view.columns.map(c => ({ name: `${this.view.table}.${c.name}`, column: c, table: this.view.table }))];
+    //If the view already has a join add the columns from the join
     if (this.view.joins) {
       this.viewColumns.push(...this.view.joins.flatMap(j => {
-        let table = j.table;
+        let prefix = j.table;
         if (j.alias) {
-          table = j.alias;
+          prefix = j.alias;
         }
-        return j.columns.map(c => ({ column: c, table: table }));
+
+        return j.columns.map(c => ({ name: `${prefix}.${c.name}`, column: c, table: j.table }));
       }));
     }
 
@@ -87,51 +91,66 @@ export class JoinTablesDialogComponent implements OnInit {
     await this.loadTableColumns();
     await this.generateRuleSetConfig();
 
-    this.formGroup.controls['tableCtrl'].valueChanges.subscribe((val) => {
-      if (this.joinTable == val) {
-        return;
-      }
 
-      this.joinTable = val;
-      if (!this.formGroup.controls['aliasCtrl'].value) {
-        let numberOfJoins = 0;
-
-        if (this.view.joins) {
-          numberOfJoins = this.view.joins.filter(j => j.table === val).length;
-        }
-        let alias = val;
-        if (numberOfJoins > 0) {
-          alias += numberOfJoins + 1
-        }
-        this.formGroup.controls['aliasCtrl'].setValue(alias)
-      }
-      this.formGroup.controls['selectCtrl'].setValue([]);
-      this.joinRules = {
-        condition: 'and',
-        rules: []
-      };
-      this.loadTableColumns().then(r => this.generateRuleSetConfig());
-    })
 
     let table, alias = '';
     let columns = []
+    let tempRules = {
+      condition: 'and',
+      rules: []
+    };
     if (this.join) {
       table = this.join.table;
       alias = this.join.alias;
       columns = [...this.join.columns];
 
-      this.joinRules = {
+      tempRules = {
         condition: 'and',
         rules: [],
         ...this.join.rules
       }
     }
 
-    this.formGroup.controls.tableCtrl.setValue(table);
-    this.formGroup.controls.aliasCtrl.setValue(alias);
-    this.formGroup.controls.selectCtrl.setValue(columns);
+    await this.formGroup.controls.tableCtrl.setValue(table);
+    await this.formGroup.controls.aliasCtrl.setValue(alias);
 
+    await this.tableChanged(table);
 
+    await this.formGroup.controls.selectCtrl.setValue(columns);
+
+    this.joinRules = { ...tempRules };
+
+    this.formGroup.controls['tableCtrl'].valueChanges.subscribe(async (val) => {
+      this.tableChanged(val)
+    })
+
+  }
+
+  public async tableChanged(newTableName: string) {
+    if (this.joinTable == newTableName) {
+      return;
+    }
+
+    this.joinTable = newTableName;
+    if (!this.formGroup.controls['aliasCtrl'].value) {
+      let numberOfJoins = 0;
+
+      if (this.view.joins) {
+        numberOfJoins = this.view.joins.filter(j => j.table === newTableName).length;
+      }
+      let alias = newTableName;
+      if (numberOfJoins > 0) {
+        alias += numberOfJoins + 1
+      }
+      this.formGroup.controls['aliasCtrl'].setValue(alias)
+    }
+    this.formGroup.controls['selectCtrl'].setValue([]);
+    this.joinRules = {
+      condition: 'and',
+      rules: []
+    };
+    await this.loadTableColumns()
+    await this.generateRuleSetConfig();
   }
 
   public async loadTablesList() {
@@ -151,7 +170,7 @@ export class JoinTablesDialogComponent implements OnInit {
 
     this.joinColumns = [...resColumns.columns];
 
-    await new Promise(r => setTimeout(r, 500));
+    // await new Promise(r => setTimeout(r, 500));
 
   }
 
@@ -164,7 +183,7 @@ export class JoinTablesDialogComponent implements OnInit {
       current[col.name] = {
         name: col.name,
         type: 'open-category',
-        options: availableColumns,
+        options: this.viewColumns,//availableColumns,
         operators: ['<', '<=', '=', '>=', '>'],
         defaultValue: () => ({ compareValue: '', compareAgainst: '' })
       };
@@ -227,7 +246,17 @@ export class JoinTablesDialogComponent implements OnInit {
     this.ref.close(this.join);
   }
 
-  compareSelected(column1, column2): boolean {
+  compareInputColumns(column1, column2): boolean {
+    if (column1 == null || column2 == null) {
+      return false;
+    }
+    return column1.name === column2.name;
+  }
+
+  compareSelectedColumns(column1, column2): boolean {
+    if (column1 == null || column2 == null) {
+      return false;
+    }
     return column1.name === column2.name;
   }
 }

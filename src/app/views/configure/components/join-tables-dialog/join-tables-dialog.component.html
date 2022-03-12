@@ -5,78 +5,74 @@
             <!-- Referance Table -->
             <div class="form-group mb-3">
                 <label class="label" for="table">Referance table</label>
-                <nb-select placeholder="Table" id="table" fullWidth formControlName="tableCtrl">
-                    <nb-option *ngFor="let table of tables" [value]="table">{{table}}</nb-option>
-                </nb-select>
+                <ng-select placeholder="Table" id="table" fullWidth formControlName="tableCtrl">
+                    <ng-option *ngFor="let table of tables" [value]="table">{{table}}</ng-option>
+                </ng-select>
             </div>
             <!-- Referance Table Alias -->
             <div class="form-group mb-3">
-                <label class="label" for="table">Table Alias</label>
-                <input nbInput placeholder="Alias" id="alias" fullWidth formControlName="aliasCtrl" />
+                <label class="label" for="alias">Table Alias</label>
+                <input placeholder="Alias" id="alias" fullWidth formControlName="aliasCtrl" />
             </div>
             <!-- Columns to Load -->
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label class="label" for="name">Use column(s)</label>
-                <nb-select placeholder="Column" id="name" fullWidth formControlName="selectCtrl" multiple>
+                <ng-select id='selectedColumns' class="q-field-control" formControlName="selectCtrl" [multiple]="true"
+                    [compareWith]="compareSelectedColumns">
+                    <ng-option *ngFor="let opt of joinColumns" [value]="opt">
+                        {{opt.name}}
+                    </ng-option>
+                </ng-select>
+                <!--nb-select placeholder="Column" id="name" fullWidth formControlName="selectCtrl" multiple>
                     <nb-option *ngFor="let col of joinColumns" [value]="col">{{col.name}}</nb-option>
-                </nb-select>
+                </nb-select-->
             </div>
-            <!-- Column to Match >
-        <div class="form-group mb-3">
-          <label class="label" for="match_column">Match column `{{viewColumn?.name}}` in referance table</label>
-          <nb-select placeholder="Column" id="match_column" fullWidth formControlName="matchColumnCtrl">
-            <nb-option *ngFor="let col of joinColumns" [value]="col.name">{{col.name}}</nb-option>
-          </nb-select>
-        </div>
-        <Comparison Operator >
-        <div class="form-group mb-3">
-          <label class="label" for="match_column">Match column `{{viewColumn?.name}}` in referance table</label>
-          <nb-select placeholder="Column" id="match_column" fullWidth formControlName="matchColumnCtrl">
-            <nb-option *ngFor="let col of columns" [value]="col.name">{{col.name}}</nb-option>
-          </nb-select>
-        </div>
-        < Use Column >
-        <div class="form-group">
-          <label class="label" for="name">Use column(s) as `{{viewColumn?.name}}` value</label>
-          <nb-select placeholder="Column" id="name" fullWidth formControlName="nameCtrl" multiple>
-            <nb-option *ngFor="let col of joinColumns" [value]="col.name">{{col.name}}</nb-option>
-          </nb-select>
-        </div-->
+
         </form>
         <!-- Join Ruleset -->
         <div class="form-group mb-3">
             <label class="label" for="table">Join Rules</label>
             <query-builder [(ngModel)]="joinRules" [config]='joinRuleSetConfig'>
 
-                <ng-container *queryInput="let rule; type: 'open-category'">
-                    <div>
-                        <nb-select fullWidth [(ngModel)]="rule.value.compareValue">
-                            <nb-option *ngFor="let option of viewColumns" [value]="option">
-                                {{columnVisibleName(option)}}
-                            </nb-option>
-                        </nb-select>
-
-                    </div>
-
-                    <!--ng-container *ngIf="rule.value.compareAgainst === 'column'; then columnMode else openEndedInput">
+                <ng-container *queryInput="let rule; let field=field; let options=options; type: 'open-category'">
+                    <ng-container *ngIf="rule.value.compareAgainst === 'column'; then columnMode else openEndedInput">
                     </ng-container>
                     <ng-template #columnMode>
-                        <nb-select fullWidth [(ngModel)]="rule.value.compareValue">
+                        <div class="q-control-size">
+                            <ng-select class="q-field-control" [(ngModel)]="rule.value.compareValue"
+                                [compareWith]="compareInputColumns" appendTo="body"ß>
+                                <ng-option *ngFor="let opt of options" [value]="opt">
+                                    {{opt.name}}
+                                </ng-option>
+                            </ng-select>
+                        </div>
+                        <!--nb-select fullWidth [(ngModel)]="rule.value.compareValue">
                             <nb-option *ngFor="let option of viewColumns" [value]="option">
                                 {{columnVisibleName(option)}}
                             </nb-option>
-                        </nb-select>
+                        </nb-select-->
                     </ng-template>
                     <ng-template #openEndedInput>
-                        <input nbInput type="text" [(ngModel)]="rule.value.compareValue" />
+                        <input type="text" [(ngModel)]="rule.value.compareValue" />
 
                     </ng-template>
 
-                    <nb-select [(ngModel)]="rule.value.compareAgainst"
-                        (ngModelChange)="onChangeComparisonMode($event, rule)">
-                        <nb-option value="column">Column Mode</nb-option>
-                        <nb-option value="string">Value</nb-option>
-                    </nb-select-->
+                    <ng-select [(ngModel)]="rule.value.compareAgainst"
+                        (ngModelChange)="onChangeComparisonMode($event, rule)" appendTo="body">
+                        <ng-option value="column">Column Mode</ng-option>
+                        <ng-option value="string">Value</ng-option>
+                    </ng-select>
+
+
+                    <!--mat-form-field>
+                            <mat-select>
+                                <mat-option *ngFor="let option of viewColumns" [value]="option.column.name">
+                                    test
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field-->
+
+
                 </ng-container>
                 <!-- Operator override -->
                 <!--ng-container *queryOperator="let rule; let operators=operators">
