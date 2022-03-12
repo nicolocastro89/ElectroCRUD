@@ -326,7 +326,7 @@ export class DatabaseService {
             let q = this.connection.from(table);
 
             if (join) {
-                let joinMethod = this.ruleSetToJoin;
+                let joinMethod = this.ruleSetToJoin.bind(this);
                 join.forEach((j) => {
                     let on = {};
                     let tableAlias = j.table;
@@ -343,7 +343,7 @@ export class DatabaseService {
                         }
                         joinMethod(this, ruleType, tableAlias, j.on.rules, service)
                     });//`${table}.${j.on.local}`, `${j.table}.${j.on.target}`)
-                    selectColumns.push(...j.columns.map(c => `${tableAlias}.${c}`));
+                    selectColumns.push(...j.columns.map(c => `${tableAlias}.${c} as ${tableAlias}_${c}`));
                 }, this)
             }
             q.select(...selectColumns);
@@ -539,7 +539,7 @@ export class DatabaseService {
                 if (rule.condition == 'or') {
                     newRuleType = 'orOn';
                 }
-                let joinMethod = this.ruleSetToJoin;
+                let joinMethod = this.ruleSetToJoin.bind(this);
                 clause[onCondition](function () {
                     joinMethod(this, newRuleType, onTableName, (<IPCReadData.IIPCRuleSet>rule).rules, service);
                 })
@@ -553,7 +553,7 @@ export class DatabaseService {
                 if (rule.value.compareAgainst === 'string') {
                     comparisonValue = service.connection.raw('?', [rule.value.compareValue])
                 } else if (rule.value.compareAgainst === 'column') {
-                    comparisonValue = `${rule.value.compareValue.column.table_name}.${rule.value.compareValue.column.name}`
+                    comparisonValue = `${rule.value.compareValue.table}.${rule.value.compareValue.column.name}`
                 }
                 clause[onCondition](
                     `${onTableName}.${rule.field}`,
