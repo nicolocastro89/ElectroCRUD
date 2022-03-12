@@ -11,7 +11,7 @@
             "protocol": "inspector",
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-            "trace": "verbose",
+            "trace": true,
             "runtimeArgs": [
                 ".",
                 "--remote-debugging-port=9876"
@@ -20,6 +20,20 @@
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             },
             "preLaunchTask": "Build.Main"
+        },
+        {
+            "name": "Renderer",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9876,
+            "url": "http://localhost:4200",
+            "sourceMaps": true,
+            "timeout": 10000,
+            "trace": true,
+            "sourceMapPathOverrides": {
+                "webpack:///./*": "${workspaceFolder}/*"
+            },
+            "preLaunchTask": "Build.Renderer"
         }
     ]
 }
