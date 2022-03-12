@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="21.364607mm"
+   height="14.48544mm"
+   viewBox="0 0 21.364607 14.48544"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
+   sodipodi:docname="sql_inner_join.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.9714953"
+     inkscape:cx="50.976535"
+     inkscape:cy="18.006637"
+     inkscape:window-width="1920"
+     inkscape:window-height="1027"
+     inkscape:window-x="1792"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient979"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop977" />
+    </linearGradient>
+    <pattern
+       patternUnits="userSpaceOnUse"
+       width="30.536147"
+       height="33.544021"
+       patternTransform="translate(202.38446,151.59463)"
+       id="pattern3202">
+      <g
+         id="g3200"
+         transform="matrix(3.7795276,0,0,3.7795276,-202.38446,-151.59463)">
+        <rect
+           style="fill:#000000;fill-opacity:0.991892;stroke:none;stroke-width:0.734594"
+           id="rect3067"
+           width="0.671022"
+           height="8.8751888"
+           x="53.547554"
+           y="40.109413" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect3067"
+           id="use3078"
+           transform="translate(1.0583333)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect3067"
+           id="use3160"
+           transform="translate(2.1166667)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use3078"
+           id="use3162"
+           transform="translate(2.1166667)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect3067"
+           id="use3172"
+           transform="translate(4.2333335)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use3078"
+           id="use3174"
+           transform="translate(4.2333335)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use3160"
+           id="use3176"
+           transform="translate(4.2333335)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use3162"
+           id="use3178"
+           transform="translate(4.2333335)"
+           width="100%"
+           height="100%" />
+      </g>
+    </pattern>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-56.362505,-69.387995)">
+    <circle
+       style="fill:none;fill-opacity:0.991892;stroke:#000000;stroke-width:1.065"
+       id="path846"
+       cx="63.605225"
+       cy="76.630714"
+       r="6.7102199" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path846"
+       id="use961"
+       transform="translate(6.879167)"
+       width="100%"
+       height="100%"
+       style="fill:none;fill-opacity:1" />
+    <path
+       id="use1004"
+       style="fill:url(#pattern3202);fill-opacity:1;stroke:none;stroke-width:4.0252"
+       d="m 253.4082,267.85938 a 25.361461,25.361461 0 0 0 -12.37109,21.76757 25.361461,25.361461 0 0 0 12.36133,21.76367 25.361461,25.361461 0 0 0 12.36133,-21.76367 25.361461,25.361461 0 0 0 -12.35157,-21.76757 z"
+       transform="scale(0.26458333)" />
+  </g>
+</svg>

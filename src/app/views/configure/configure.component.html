@@ -89,8 +89,8 @@
           <nb-accordion-item *ngFor="let join of view.joins">
             <nb-accordion-item-header>{{join.table}} ({{join.alias}})
               <button nbButton hero size="small" (click)="addEditJoin(join)" class="btn-join" nbTooltip="Edit Join">
-                <nb-icon icon="folder"></nb-icon>
-                Join
+                <nb-icon icon="edit-outline"></nb-icon>
+                Edit Join
                 <nb-badge text="X" status="danger" (click)="deleteJoin($event, join)" nbTooltip="Delete Join"
                   nbTooltipStatus="danger"></nb-badge>
               </button>
@@ -157,8 +157,10 @@
       </nb-card-body>
       <nb-card-footer class="d-flex justify-content-end">
         <button nbButton hero size="small" (click)="addEditJoin()" class="btn-relerance" nbTooltipStatus="primary">
-          <nb-icon icon="folder"></nb-icon>
-          JOIN
+          <img src="./assets/icons/sql_inner_join.svg">
+          <!--nb-icon pack="sql-icons" icon="inner-join"></nb-icon-->
+          <!--fa-icon [icon]="['fas', 'diagram-venn']"></fa-icon-->
+          ADD JOIN
         </button>
       </nb-card-footer>
     </nb-card>
