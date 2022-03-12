@@ -26,6 +26,7 @@ import {
   NbAutocompleteModule,
   NbAccordionComponent
 } from '@nebular/theme';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { ViewEditComponent } from './view/edit/edit.component';
@@ -82,6 +83,7 @@ import { QueryBuilderModule } from 'angular2-query-builder';
     NbTabsetModule,
     NbAutocompleteModule,
     NbBadgeModule,
+    NgSelectModule,
     FormlyModule.forChild({
       types: [
         {
@@ -113,7 +115,7 @@ import { QueryBuilderModule } from 'angular2-query-builder';
     TagInputModule,
     NgBootstrapFormValidationModule,
     MonacoEditorModule,
-    QueryBuilderModule
+    QueryBuilderModule,
   ],
   entryComponents: [ViewComponent, ConfigureComponent, EmptyComponent, ViewEditComponent, ViewAddComponent, ViewViewComponent, WidgetsComponent, SubViewComponent, QueryComponent]
 })

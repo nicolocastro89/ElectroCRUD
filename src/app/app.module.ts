@@ -43,6 +43,7 @@ import {
 } from '@nebular/theme';
 import { ConfirmDeleteComponent } from './components/dialogs/confirm-delete/confirm-delete.component';
 
+
 import { NgxMaskModule } from 'ngx-mask';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
@@ -51,6 +52,8 @@ import { AccountsService } from './services/store/accounts.service';
 import { Ng2FittextModule } from "ng2-fittext";
 import { AddEditWidgetModalComponent } from './views/view/view/components/widgets/add-edit-widget-modal/add-edit-widget-modal.component';
 import { AddEditFilterModalComponent } from './views/view/view/components/filters/add-edit-filter-modal/add-edit-filter-modal.component';
+
+import { NgSelectModule } from '@ng-select/ng-select';
 
 //import bugsnag from '@bugsnag/js';
 import Bugsnag from '@bugsnag/js';
@@ -128,6 +131,7 @@ console.log("version: ", version, ", env: ", AppConfig.environment);
     NbSelectModule,
     NbDialogModule.forRoot(),
     NgxMaskModule.forRoot(),
+    NgSelectModule,
     NbToastrModule.forRoot(),
     ReactiveFormsModule,
     NbAlertModule,
@@ -139,7 +143,7 @@ console.log("version: ", version, ", env: ", AppConfig.environment);
     MonacoEditorModule,
     NbListModule,
     NbBadgeModule,
-    QueryBuilderModule
+    QueryBuilderModule,
   ],
   providers: [
     ElectronService,
