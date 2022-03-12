@@ -116,6 +116,7 @@
     "@nebular/date-fns": "^4.1.1",
     "@nebular/eva-icons": "^4.0.0-rc.8",
     "@nebular/theme": "^6.2.1",
+    "@ng-select/ng-select": "^5.1.0",
     "@ngx-formly/bootstrap": "^5.2.0",
     "@ngx-formly/core": "^5.2.0",
     "@sqltools/formatter": "^1.2.2",
